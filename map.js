@@ -2,6 +2,9 @@ import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYXJ1cHNpIiwiYSI6ImNtN2VpaXdvazBjZ3MyaXF3dzUwZnhrM3EifQ.GKAHktR-YLXLRE8cerUT3g';
 
+let stationFlow = d3.scaleQuantize()
+  .domain([0, 1])
+  .range([0, 0.5, 1]);
 
 let timeFilter = -1;
 
@@ -122,10 +125,14 @@ map.on('load', async () => {
       .data(stations, (d) => d.short_name)
       .enter()
       .append('circle')
-      .attr('fill', 'steelblue')
+      .attr('r', 5)
       .attr('stroke', 'white')
       .attr('stroke-width', 1)
       .attr('opacity', 0.8)
+      .style('--departure-ratio', (d) => {
+        let ratio = d.totalTraffic > 0 ? d.departures / d.totalTraffic : 0;
+        return stationFlow(ratio);
+      })
       .each(function(d) {
         
         d3.select(this)
@@ -186,12 +193,16 @@ map.on('load', async () => {
     }
 
     circles
-      .data(filteredStations, (d) => d.short_name)
-      .join('circle') 
-      .attr('r', (d) => radiusScale(d.totalTraffic))
-      .select('title')
-      .text((d) => `${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
-  }
+    .data(filteredStations, (d) => d.short_name)
+    .join('circle')
+    .attr('r', (d) => radiusScale(d.totalTraffic))
+    .style('--departure-ratio', (d) => {
+      let ratio = d.totalTraffic > 0 ? d.departures / d.totalTraffic : 0;
+      return stationFlow(ratio);
+    })
+    .select('title')
+    .text((d) => `${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
+}
 
   function updateTimeDisplay() {
     timeFilter = Number(timeSlider.value);
