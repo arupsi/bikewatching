@@ -9,4 +9,26 @@ body {
     padding: 1em;
   }
 
-
+  header {
+    display: flex;
+    gap: 1em;
+    align-items: baseline;
+  }
+  
+  .time-filter-label {
+    margin-left: auto;
+    display: inline-flex; 
+    flex-direction: column; 
+    gap: 0.25em;
+  }
+  
+  #selected-time,
+  #any-time {
+    display: block; 
+  }
+  
+  #any-time {
+    color: #666;     
+    font-style: italic;
+  }
+  
